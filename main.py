@@ -1,5 +1,6 @@
 # instaling 7a.202208025.82
 # /instaling.pl/
+# most basic wersja, zacznij od stworzenia bazy danych
 
 from time import sleep
 import glob
@@ -103,26 +104,13 @@ def Login_on_page(username, password):
         except Exception as E:
             print("Err while starting the session: " + E)
 
-def Find_wheather_exists(cur, pol, exmpl) -> bool:
-    cur.execute(""" SELECT pol,exmpl
-                    FROM wyrazenia
-                    WHERE pol=?
-                    AND exmpl=?""",
-                (pol, exmpl))
-    result = cur.fetchone()
-    cur.close()
-    return result
 
 def Find_translation(cur, pol, exmpl):
     try:
-        # cur.execute(f"""SELECT pol, ang
-        #                 FROM wyrazenia
-        #                 WHERE pol LIKE ?
-        #                 AND exmpl LIKE ?""", (pol, exmpl))
         cur.execute("SELECT * FROM wyrazenia WHERE pol=? AND exmpl=?", (pol,exmpl))
         answer = cur.fetchone()
         cur.close()
-        return answer[2]
+        return answer
     except:
         print("Couldn't find the translation")
 
@@ -130,7 +118,6 @@ def Find_translation(cur, pol, exmpl):
 
 def Input_answer(answer: str):
     try:
-        print(type(answer))
         a = answer
         if random() < fail_chance:
             if random() < 0.5:
@@ -145,7 +132,7 @@ def Input_answer(answer: str):
                 a.replace("e", "w")
                 a.replace("a", "s").upper()
                 a = a[:0] + "n" + a[0+1:]
-            # print(f"RANDOM 5% FAIL CHANCE, modified word to contain small mistakes with {method}")
+            print(f"RANDOM 5% FAIL CHANCE, modified word to contain small mistakes with {method}")
         
             
         driver.find_element(By.XPATH,'//*[@id="answer"]').send_keys(a)
@@ -186,13 +173,13 @@ def Solve_exercises(con, username, password):
             exmpl = driver.find_element(By.XPATH,'/html/body/div/div[8]/div[1]/div[1]').text
             # sleep(round(uniform(2, 2.769), 4))
             cur = con.cursor()
-            result = Find_wheather_exists(cur, pol, exmpl)
+            result = Find_translation(cur, pol, exmpl)
             if result:
                 print(f"'{pol}': word found in the database")
                 cur = con.cursor()
                 answer = Find_translation(cur, pol, exmpl)
                 try:
-                    Input_answer(answer)
+                    Input_answer(answer[2])
                 except:
                     continue
             else:
@@ -213,10 +200,11 @@ def Solve_exercises(con, username, password):
             print("Finished the exercise")
             break
     try:
+        # Uncomment to automatically log out
         # # WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div/div[2]/img[1]'))).click()
         # # WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div[1]/div[2]/div/p[10]/a'))).click()
         # # WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div/div[3]/p[4]/a'))).click()
-        print("Logged out")
+        print("User completed")
     except:
         print("Couldn't log out")
     return 0 
