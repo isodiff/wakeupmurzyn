@@ -1,6 +1,8 @@
 # instaling 7a.202208025.82
 # /instaling.pl/
 # most basic wersja, zacznij od stworzenia bazy danych
+# geckodriver pobierz do folderu C:\Drivers\geckodriver-v0.32.0-win64\geckodriver.exe albo dodaj do $PATH
+# https://github.com/mozilla/geckodriver/releases
 # pobierz ublock origin do pobranych
 # https://addons.mozilla.org/firefox/downloads/file/4003969/ublock_origin-1.44.4.xpi
 
