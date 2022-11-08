@@ -1,6 +1,8 @@
 # instaling 7a.202208025.82
 # /instaling.pl/
 # most basic wersja, zacznij od stworzenia bazy danych
+# pobierz ublock origin do pobranych
+# https://addons.mozilla.org/firefox/downloads/file/4003969/ublock_origin-1.44.4.xpi
 
 from time import sleep
 import glob
@@ -11,7 +13,7 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from random import uniform,random
+from random import uniform,random,sample
 import sqlite3 as sl
 
 ###     setup
@@ -53,6 +55,21 @@ def db_add_user_acc(con, usr):
                     VALUES  (?, ?)
                     """,    (usr[0], usr[1]))
     con.commit()
+    cur.close()
+    
+def db_delete_random(con, n):
+    cur = con.cursor()
+    cur.execute("select * from wyrazenia")
+    n_entries = len(cur.fetchall())
+    randomlist = sample(range(1, n_entries), n)
+    try:
+        for i in randomlist:
+            sql = 'DELETE FROM wyrazenia WHERE id=?'
+            cur = con.cursor()
+            cur.execute(sql, (i,))
+        con.commit()
+    except Exception as Err:
+        print(Err)
     cur.close()
     
 
@@ -160,7 +177,6 @@ def Find_definition(con, cur, pol, exmpl):
         con.commit()
         cur.close()
         print("Added new word to the database")
-        sleep(10)
         
     except:
         print("Word doesn't have a definition")
@@ -226,6 +242,7 @@ def main():
     with sl.connect('wyrazenia.db') as con:    
         # db_create_table(con)
         # db_add_user_acc(con, ("login", "password"))
+        db_delete_random(con, 15)
         start_from_db(con)
     
 if __name__ == "__main__":
